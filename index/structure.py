@@ -82,7 +82,10 @@ class TermOccurrence:
         self.term_freq = term_freq
 
     def write(self, idx_file):
-        pass
+        idx_file.write(self.doc_id.to_bytes(4,byteorder="big"))
+        idx_file.write(self.term_id.to_bytes(4,byteorder="big"))
+        idx_file.write(self.term_freq.to_bytes(4,byteorder="big"))
+        
 
     def __hash__(self):
         return hash((self.doc_id, self.term_id))
@@ -162,20 +165,24 @@ class FileIndex(Index):
         return self.dic_index[term].term_id
 
     def create_index_entry(self, term_id: int) -> TermFilePosition:
-        return None
+        return TermFilePosition(term_id)
 
     def add_index_occur(self, entry_dic_index: TermFilePosition, doc_id: int, term_id: int, term_freq: int):
         #complete aqui adicionando um novo TermOccurrence na lista lst_occurrences_tmp
         #não esqueça de atualizar a(s) variável(is) auxiliares apropriadamente
 
-        if None:
+        term_occurrences = TermOccurrence(doc_id, term_id, term_freq) 
+        self.lst_occurrences_tmp.append(term_occurrences)
+
+        if self.get_tmp_occur_size() == FileIndex.TMP_OCCURRENCES_LIMIT:
             self.save_tmp_occurrences()
+            self.lst_occurrences_tmp.clear()
 
     def next_from_list(self) -> TermOccurrence:
         if self.get_tmp_occur_size() > 0:
-            # obtenha o proximo da lista e armazene em nex_occur
+            # obtenha o proximo da lista e armazene em next_occur
             # não esqueça de atualizar a(s) variável(is) auxiliares apropriadamente
-
+            next_occur = self.lst_occurrences_tmp.pop()
 
             return next_occur
         else:
@@ -186,8 +193,16 @@ class FileIndex(Index):
         bytes_doc_id = file_pointer.read(4)
         if not bytes_doc_id:
             return None
-            # seu código aqui :)
+        bytes_term_id = file_pointer.read(4)
+        if not bytes_term_id:
+            return None
+        bytes_term_freq = file_pointer.read(4)
+        if not bytes_term_freq:
+            return None
         
+        doc_id = int.from_bytes(bytes_doc_id, byteorder='big')
+        term_id = int.from_bytes(bytes_term_id, byteorder='big')
+        term_freq = int.from_bytes(bytes_term_freq, byteorder='big')
 
         return TermOccurrence(doc_id, term_id, term_freq)
 
