@@ -172,17 +172,20 @@ class FileIndex(Index):
         #não esqueça de atualizar a(s) variável(is) auxiliares apropriadamente
 
         term_occurrences = TermOccurrence(doc_id, term_id, term_freq) 
-        self.lst_occurrences_tmp.append(term_occurrences)
+        self.lst_occurrences_tmp[self.idx_tmp_occur_last_element + 1] = term_occurrences
+        self.idx_tmp_occur_last_element += 1
 
-        if self.get_tmp_occur_size() == FileIndex.TMP_OCCURRENCES_LIMIT:
+        if self.get_tmp_occur_size() >= FileIndex.TMP_OCCURRENCES_LIMIT:
             self.save_tmp_occurrences()
             self.lst_occurrences_tmp.clear()
+            
 
     def next_from_list(self) -> TermOccurrence:
         if self.get_tmp_occur_size() > 0:
             # obtenha o proximo da lista e armazene em next_occur
             # não esqueça de atualizar a(s) variável(is) auxiliares apropriadamente
-            next_occur = self.lst_occurrences_tmp.pop()
+            next_occur = self.lst_occurrences_tmp[self.idx_tmp_occur_first_element]
+            self.idx_tmp_occur_first_element += 1
 
             return next_occur
         else:
@@ -215,6 +218,40 @@ class FileIndex(Index):
         """comparar sempre a primeira posição
         da lista com a primeira posição do arquivo usando os métodos next_from_list e next_from_file
         e use o método write do TermOccurrence para armazenar cada ocorrencia do novo índice ordenado"""
+
+        if self.str_idx_file_name == None:
+            self.str_idx_file_name = "occur_index_{}.idx".format(self.idx_file_counter)
+            new_file = open(self.str_idx_file_name, 'wb')
+            self.lst_occurrences_tmp.sort()
+
+            next_term_from_list = self.next_from_list()
+
+            while next_term_from_list != None:
+                next_term_from_list.write(new_file)
+                next_term_from_list = self.next_from_list()
+
+        else:
+            current_file = open(self.str_idx_file_name, 'rb')
+            self.idx_file_counter = self.idx_file_counter + 1
+            self.str_idx_file_name = "occur_index_{}.idx".format(self.idx_file_counter)
+
+            new_file = open(self.str_idx_file_name, 'wb')
+
+            self.lst_occurrences_tmp.sort()
+            next_term_from_list = self.next_from_list()
+            next_term_from_file = self.next_from_file(current_file)
+
+            while next_term_from_list != None and next_term_from_file != None:
+                if next_term_from_list < next_term_from_file:
+                    next_term_from_list.write(new_file)
+                    next_term_from_list = self.next_from_list()
+                else:
+                    next_term_from_file.write(new_file)
+                    next_term_from_file = self.next_from_file(current_file)
+
+            current_file.close()
+        
+        new_file.close()
 
         gc.enable()
 
