@@ -1,4 +1,5 @@
-from IPython.display import clear_output
+# from IPython.display import clear_output
+# TODO voltar com o Ipython
 from index.structure import *
 
 from datetime import datetime
@@ -62,7 +63,7 @@ class FilePerformanceTest(PerformanceTest):
 
 def test():
     for i in range(10):
-        clear_output(wait=True)
+        # clear_output(wait=True)
         print(f"oi {i}")
         time.sleep(1)
 

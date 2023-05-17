@@ -1,4 +1,3 @@
-from IPython.display import clear_output
 from typing import List, Set, Union
 from abc import abstractmethod
 from functools import total_ordering
@@ -153,7 +152,7 @@ class FileIndex(Index):
     def __init__(self):
         super().__init__()
 
-        self.lst_occurrences_tmp = []
+        self.lst_occurrences_tmp = [None]*FileIndex.TMP_OCCURRENCES_LIMIT
         self.idx_file_counter = 0
         self.str_idx_file_name = None
 
@@ -181,8 +180,6 @@ class FileIndex(Index):
 
         if self.get_tmp_occur_size() >= FileIndex.TMP_OCCURRENCES_LIMIT:
             self.save_tmp_occurrences()
-            self.lst_occurrences_tmp.clear()
-            
 
     def next_from_list(self) -> TermOccurrence:
         if self.get_tmp_occur_size() > 0:
@@ -265,7 +262,7 @@ class FileIndex(Index):
         
         new_file.close()
 
-        self.lst_occurrences_tmp.clear()
+        self.lst_occurrences_tmp = [None]*FileIndex.TMP_OCCURRENCES_LIMIT
         self.idx_tmp_occur_last_element = -1
         self.idx_tmp_occur_first_element = 0
 
@@ -309,7 +306,15 @@ class FileIndex(Index):
                 seek_file = seek_file + 12
 
     def get_occurrence_list(self, term: str) -> List:
-        return self.dic_index[term]
+        with open(self.str_idx_file_name, 'rb') as idx_file:
+            occurrence_list = []
+            while True:
+                current_term = self.next_from_file(idx_file)
+                if current_term is None or self.get_term_id(term) is None or current_term.term_id != self.get_term_id(term):
+                    break
+                occurrence_list.append(current_term)
+
+        return occurrence_list
 
     def document_count_with_term(self, term: str) -> int:
         if term in self.dic_index:
