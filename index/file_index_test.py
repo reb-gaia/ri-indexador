@@ -1,7 +1,7 @@
-from .structure import *
+from structure import *
 import unittest
-from .index_structure_test import StructureTest
-from .performance_test import PerformanceTest
+from index_structure_test import StructureTest
+from performance_test import PerformanceTest
 
 
 
@@ -83,7 +83,7 @@ class FileIndexTest(unittest.TestCase):
                                         None,
                                         None]
         set_occurrences = set(self.index.lst_occurrences_tmp) - {None}
-        self.index.idx_tmp_occur_last_element  = 3
+        self.index.idx_tmp_occur_last_element = 3
         self.index.save_tmp_occurrences()
         self.check_idx_file(self.index, set_occurrences)
         print("Primeira execução (criação inicial do indice) [ok]")
