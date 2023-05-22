@@ -55,12 +55,18 @@ class Index:
         pass
 
     def write(self, arq_index: str):
-        pass
+        file = open(arq_index, "wb")
+        pickle.dump(self, file)
+        file.close()
+        
     
 
     @staticmethod
     def read(arq_index: str):
-        pass
+        file = open(arq_index, "rb")
+        document = pickle.load(file)
+        file.close()
+        return document
 
     def __str__(self):
         arr_index = []
@@ -165,7 +171,9 @@ class FileIndex(Index):
         return self.idx_tmp_occur_last_element - self.idx_tmp_occur_first_element + 1
 
     def get_term_id(self, term: str):
-        return self.dic_index[term].term_id
+        if term in self.dic_index:
+            return self.dic_index[term].term_id
+        return None
 
     def create_index_entry(self, term_id: int) -> TermFilePosition:
         return TermFilePosition(term_id)
@@ -310,8 +318,10 @@ class FileIndex(Index):
             occurrence_list = []
             while True:
                 current_term = self.next_from_file(idx_file)
-                if current_term is None or self.get_term_id(term) is None or current_term.term_id != self.get_term_id(term):
+                if current_term is None or self.get_term_id(term) is None:
                     break
+                if current_term.term_id != self.get_term_id(term):
+                    continue
                 occurrence_list.append(current_term)
 
         return occurrence_list

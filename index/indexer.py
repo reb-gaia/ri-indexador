@@ -24,7 +24,7 @@ class Cleaner:
         self.perform_stemming = perform_stemming
 
     def html_to_plain_text(self, html_doc: str) -> str:
-        return None
+        return BeautifulSoup(html_doc, 'html.parser').get_text()
 
     @staticmethod
     def read_stop_words(str_file) -> set:
@@ -36,10 +36,10 @@ class Cleaner:
         return set_stop_words
 
     def is_stop_word(self, term: str):
-        return True
+        return term in self.set_stop_words
 
     def word_stem(self, term: str):
-        return ""
+        return self.stemmer.stem(term)
 
     def remove_accents(self, term: str) -> str:
         return None

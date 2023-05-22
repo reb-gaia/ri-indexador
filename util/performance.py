@@ -7,11 +7,11 @@ class CheckTime:
     def __init__(self, count_total=None):
         self.time = datetime.now()
         self.count_total = count_total
-        self.total_seconds = 0
+        self.total_seconds = 1
 
     def reset(self):
         self.time = datetime.now()
-        self.total_seconds = 0
+        self.total_seconds = 1
     def finish_time(self):
         delta = datetime.now()-self.time
         self.time = datetime.now()

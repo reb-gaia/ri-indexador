@@ -1,7 +1,7 @@
-from structure import *
+from .structure import *
 import unittest
-from index_structure_test import StructureTest
-from performance_test import PerformanceTest
+from .index_structure_test import StructureTest
+from .performance_test import PerformanceTest
 
 
 
