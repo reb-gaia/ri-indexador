@@ -15,7 +15,7 @@ class Cleaner:
         in_table = "áéíóúâêôçãẽõü"
         out_table = "aeiouaeocaeou"
         # altere a linha abaixo para remoção de acentos (Atividade 11)
-        self.accents_translation_table = None
+        self.accents_translation_table = str.maketrans(in_table, out_table)
         self.set_punctuation = set(string.punctuation)
 
         # flags
@@ -42,13 +42,22 @@ class Cleaner:
         return self.stemmer.stem(term)
 
     def remove_accents(self, term: str) -> str:
-        return None
+        return term.translate(self.accents_translation_table)
 
     def preprocess_word(self, term: str) -> str or None:
-        return None
+        if term not in self.set_punctuation:
+            if self.perform_stop_words_removal and self.is_stop_word(term):
+                return None
+            if self.perform_stemming:
+                return self.word_stem(term)
+            else:
+                return term
+        else:
+            return None
+            
 
     def preprocess_text(self, text: str) -> str or None:
-        return None
+        return self.remove_accents(text.lower())
 class HTMLIndexer:
     cleaner = Cleaner(stop_words_file="stopwords.txt",
                       language="portuguese",
@@ -62,10 +71,19 @@ class HTMLIndexer:
     def text_word_count(self, plain_text: str):
         dic_word_count = {}
 
-        return dic_word_count
+        for token in word_tokenize(plain_text):
+            term = self.cleaner.preprocess_word(token)
+            if term is not None:
+                if term not in dic_word_count:
+                    dic_word_count[term] = 1
+                else:
+                    dic_word_count[term] += 1
+
+        return sorted(dic_word_count.items(), key=lambda x: x[1], reverse=True)
 
     def index_text(self, doc_id: int, text_html: str):
-        pass
+        plain_text = self.cleaner.html_to_plain_text(text_html)
+        
 
     def index_text_dir(self, path: str):
         for str_sub_dir in os.listdir(path):
