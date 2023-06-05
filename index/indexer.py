@@ -2,6 +2,7 @@ from nltk.stem.snowball import SnowballStemmer
 from bs4 import BeautifulSoup
 import string
 from nltk.tokenize import word_tokenize
+import nltk
 import os
 
 
@@ -10,7 +11,7 @@ class Cleaner:
                  perform_stop_words_removal: bool, perform_accents_removal: bool,
                  perform_stemming: bool):
         self.set_stop_words = self.read_stop_words(stop_words_file)
-
+        # TODO verificar pq ta pegando o stopwords de dois lugares
         self.stemmer = SnowballStemmer(language)
         in_table = "áéíóúâêôçãẽõü"
         out_table = "aeiouaeocaeou"
@@ -54,10 +55,11 @@ class Cleaner:
                 return term
         else:
             return None
-            
 
     def preprocess_text(self, text: str) -> str or None:
         return self.remove_accents(text.lower())
+
+
 class HTMLIndexer:
     cleaner = Cleaner(stop_words_file="stopwords.txt",
                       language="portuguese",
@@ -70,7 +72,7 @@ class HTMLIndexer:
 
     def text_word_count(self, plain_text: str):
         dic_word_count = {}
-
+        plain_text = self.cleaner.preprocess_text(plain_text)
         for token in word_tokenize(plain_text):
             term = self.cleaner.preprocess_word(token)
             if term is not None:
@@ -83,8 +85,16 @@ class HTMLIndexer:
 
     def index_text(self, doc_id: int, text_html: str):
         plain_text = self.cleaner.html_to_plain_text(text_html)
-        
+        word_count = self.text_word_count(plain_text)
+        for key, value in word_count:
+            self.index.index(key, doc_id, value)
+        self.index.finish_indexing()
 
     def index_text_dir(self, path: str):
+        # TODO testar se é HTML
         for str_sub_dir in os.listdir(path):
             path_sub_dir = f"{path}/{str_sub_dir}"
+            for file_path in os.listdir(path_sub_dir):
+                file = open(f"{path_sub_dir}/{file_path}", "rb")
+                self.index_text(int(file_path.removesuffix('.html')), file.read().decode('utf-8'))
+                file.close()
