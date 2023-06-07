@@ -96,5 +96,7 @@ class HTMLIndexer:
             path_sub_dir = f"{path}/{str_sub_dir}"
             for file_path in os.listdir(path_sub_dir):
                 file = open(f"{path_sub_dir}/{file_path}", "rb")
-                self.index_text(int(file_path.removesuffix('.html')), file.read().decode('utf-8'))
+                # TODO removesuffix
+                self.index_text(int(file_path.split(".")[0]), file.read().decode('utf-8'))
                 file.close()
+        #self.index.finish_indexing() -> testar

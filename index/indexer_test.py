@@ -6,8 +6,7 @@ class IndexerTest(unittest.TestCase):
     def test_indexer(self):
         obj_index = FileIndex()
         html_indexer = HTMLIndexer(obj_index)
-        # TODO voltar com index/docs_test
-        html_indexer.index_text_dir("docs_test")
+        html_indexer.index_text_dir("index/docs_test")
         set_vocab = set(obj_index.vocabulary)
         set_expected_vocab = set([ 'cas', 'ser', 'verd', 'ou', 'nao', 'eis', 'questa'])
 
