@@ -4,6 +4,7 @@ import string
 from nltk.tokenize import word_tokenize
 import nltk
 import os
+from tqdm import tqdm
 
 
 class Cleaner:
@@ -88,15 +89,15 @@ class HTMLIndexer:
         word_count = self.text_word_count(plain_text)
         for key, value in word_count:
             self.index.index(key, doc_id, value)
-        self.index.finish_indexing()
+        #self.index.finish_indexing()
 
     def index_text_dir(self, path: str):
         # TODO testar se é HTML
-        for str_sub_dir in os.listdir(path):
+        for str_sub_dir in tqdm(os.listdir(path)):
             path_sub_dir = f"{path}/{str_sub_dir}"
             for file_path in os.listdir(path_sub_dir):
                 file = open(f"{path_sub_dir}/{file_path}", "rb")
                 # TODO removesuffix
                 self.index_text(int(file_path.split(".")[0]), file.read().decode('utf-8'))
                 file.close()
-        #self.index.finish_indexing() -> testar
+        self.index.finish_indexing()
